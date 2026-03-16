@@ -31,7 +31,7 @@ def is_leap_year(year: int) -> bool:
 
     :param int year: Проверяемый год
     :return: Значение високосности.
-    :rquery_type: bool
+    :rtype: bool
     """
     return bool((year % 4 == 0 and year % 100 != 0) or (year % 100 == 0 and year % 400 == 0))
 
@@ -42,7 +42,7 @@ def extract_date(maybe_dt: str) -> tuple[int, int, int] | None:
 
     :param str maybe_dt: Проверяемая строка
     :return: typle формата (день, месяц, год) или None, если дата неправильная.
-    :rquery_type: tuple[int, int, int] | None
+    :rtype: tuple[int, int, int] | None
     """
     if len(maybe_dt) != DATE_LEN or maybe_dt[2] != "-" or maybe_dt[5] != "-":
         return None
@@ -53,7 +53,7 @@ def extract_date(maybe_dt: str) -> tuple[int, int, int] | None:
 
 def check_date(date: tuple[int, int, int]) -> bool:
     month_capacity = [31, 29 if is_leap_year(date[2]) else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    return bool(date[0] <= month_capacity[date[1] - 1])
+    return bool(date[0] <= month_capacity[date[1] - 1])  # Change this
 
 
 def get_query(inpt_list: list, inpt_len: int, category: str | None, date: list, query_type: str) -> list | None:
