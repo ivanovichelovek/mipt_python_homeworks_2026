@@ -73,7 +73,7 @@ def is_leap_year(year: int) -> bool:
 
     :param int year: Проверяемый год
     :return: Значение високосности.
-    :rtype: bool
+    :rquery_type: bool
     """
     if year % 400 == 0:
         return True
@@ -88,7 +88,7 @@ def extract_date(maybe_dt: str) -> TUPLE_TRIPLE_INT | None:
 
     :param str maybe_dt: Проверяемая строка
     :return: typle формата (день, месяц, год) или None, если дата неправильная.
-    :rtype: tuple[int, int, int] | None
+    :rquery_type: tuple[int, int, int] | None
     """
     if len(maybe_dt) != DATE_LEN:
         return None
