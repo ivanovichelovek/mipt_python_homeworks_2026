@@ -10,7 +10,7 @@ STATS_QUERY_LEN = 2
 
 
 class DateStatistics:
-    def __init__(self):
+    def __init__(self) -> None:
         self.income = 0.0
         self.outcome = 0.0
         self.categories = {}
@@ -56,20 +56,22 @@ def check_date(date: tuple[int, int, int]) -> bool:
     return bool(date[0] <= month_capacity[date[1] - 1])
 
 
-def get_query(inpt_list: list, inpt_len: int, category: str | None, date: list, query_type: str) -> list | None:
-    if len(inpt_len) > STATS_QUERY_LEN:
+def get_query(
+    inpt_list: list, inpt_len: int, category: str | None, date: tuple[int, int, int], query_type: str
+) -> list[str, str, int, tuple[int, int, int]] | None:
+    if len(inpt_list) > STATS_QUERY_LEN:
         number = float(inpt_list[-2].replace(",", "."))
         if number <= 0:
-            print(INCORRECT_DATE_MSG)
+            print(INCORRECT_DATE_MSG)  # noqa: T201
             return None
     if len(inpt_list) != inpt_len or not date or not check_date(date):
-        print(INCORRECT_DATE_MSG)
+        print(INCORRECT_DATE_MSG)  # noqa: T201
         return None
-    print(OP_SUCCESS_MSG)
+    print(OP_SUCCESS_MSG)  # noqa: T201
     return [query_type, category, number, date]
 
 
-def split_query(inpt: str) -> list | None:
+def split_query(inpt: str) -> list[str, str, int, tuple[int, int, int]] | None:
     inpt_list = list(inpt.split())
     query_type = inpt_list[0]
     date = extract_date(inpt_list[-1])
@@ -81,11 +83,11 @@ def split_query(inpt: str) -> list | None:
         case "stats":
             return get_query(inpt_list, 2, None, date, query_type)
         case _:
-            print(UNKNOWN_COMMAND_MSG)
+            print(UNKNOWN_COMMAND_MSG)  # noqa: T201
             return None
 
 
-def print_stats(date_stats: DateStatistics, date: tuple, capital: float) -> None:
+def print_stats(date_stats: DateStatistics, date: tuple[int, int, int], capital: float) -> None:
     month_income = date_stats.income - date_stats.outcome
     categories = sorted([[key, value] for key, value in date_stats.categories.items()], key=lambda x: x[0])
     print(f"""Your statistics as of {"-".join(str(i) for i in date)}:
@@ -95,7 +97,7 @@ def print_stats(date_stats: DateStatistics, date: tuple, capital: float) -> None
     Expenses: {date_stats.outcome} rubles
 
     Details (category: amount):
-    {"\n".join([f"{i + 1}. {categories[i][0]}: {categories[i][1]}" for i in range(len(categories))])}""")
+    {"\n".join([f"{i + 1}. {categories[i][0]}: {categories[i][1]}" for i in range(len(categories))])}""")  # noqa: T201
 
 
 def income_handler(amount: float, income_date: str) -> str:
@@ -106,26 +108,25 @@ def main() -> None:
     capital = 0
     date_stats = {}
 
-    query = ""
     while True:
         query = split_query(input())
         match query[0]:
             case None:
                 continue
             case "income":
-                if query[2] not in date_stats:
-                    date_stats[query[2]] = DateStatistics()
-                date_stats[query[2]].new_income(query[1])
+                if query[3] not in date_stats:
+                    date_stats[query[3]] = DateStatistics
+                date_stats[query[3]].new_income(query[2])
                 capital += query[1]
             case "cost":
                 if query[3] not in date_stats:
-                    date_stats[query[3]] = DateStatistics()
+                    date_stats[query[3]] = DateStatistics
                 date_stats[query[3]].new_outcome(query[1], query[2])
                 capital -= query[2]
             case "stats":
-                if query[1] not in date_stats:
-                    date_stats[query[1]] = DateStatistics()
-                print_stats(date_stats[query[1]], query[1], capital)
+                if query[3] not in date_stats:
+                    date_stats[query[3]] = DateStatistics
+                print_stats(date_stats[query[3]], query[3], capital)
 
 
 if __name__ == "__main__":
