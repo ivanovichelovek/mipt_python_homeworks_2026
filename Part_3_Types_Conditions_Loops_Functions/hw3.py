@@ -34,7 +34,11 @@ def is_leap_year(year: int) -> bool:
     :return: Значение високосности.
     :rtype: bool
     """
-    return bool((year % 4 == 0 and year % 100 != 0) or (year % 100 == 0 and year % 400 == 0))  # Change this
+    if year % 400 == 0:
+        return True
+    if year % 100 == 0:
+        return False
+    return year % 4 == 0
 
 
 def extract_date(maybe_dt: str) -> tuple[int, int, int] | None:
@@ -45,17 +49,27 @@ def extract_date(maybe_dt: str) -> tuple[int, int, int] | None:
     :return: typle формата (день, месяц, год) или None, если дата неправильная.
     :rtype: tuple[int, int, int] | None
     """
-    if len(maybe_dt) != DATE_LEN or maybe_dt[2] != "-" or maybe_dt[5] != "-":
+    if len(maybe_dt) != DATE_LEN:
         return None
-    if not maybe_dt[0:2].isdigit() or not maybe_dt[3:5].isdigit() or not maybe_dt[6:].isdigit():
+    if maybe_dt[2] != "-" or maybe_dt[5] != "-":
         return None
-    return (int(maybe_dt[0:2]), int(maybe_dt[3:5]), int(maybe_dt[6:]))
+    if not maybe_dt[0:2].isdigit():
+        return None
+    if not maybe_dt[3:5].isdigit():
+        return None
+    if not maybe_dt[6:].isdigit():
+        return None
+    day = int(maybe_dt[0:2])
+    month = int(maybe_dt[3:5])
+    year = int(maybe_dt[6:])
+    return (day, month, year)
 
 
 def check_date(date: tuple[int, int, int] | None) -> bool:
     if not date:
         return False
-    month_capacity = [31, 29 if is_leap_year(date[2]) else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    february = 29 if is_leap_year(date[2]) else 28
+    month_capacity = [31, february, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     return bool(date[0] <= month_capacity[date[1] - 1])
 
 
