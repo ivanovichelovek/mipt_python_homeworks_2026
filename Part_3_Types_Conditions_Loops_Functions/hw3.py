@@ -9,7 +9,7 @@ DATE_LEN = 10
 STATS_QUERY_LEN = 2
 NORMILISED_QUERY_LEN = 4
 
-GET_QUERY_RETURN_TYPE = tuple[str, str | None, float, tuple[int, int, int]]
+GET_QUERY_RETURN_TYPE = tuple[str, str | None, float, tuple[int, int, int]] | None
 
 
 class DateStatistics:
@@ -79,7 +79,7 @@ def get_query(
     category: str | None,
     date: tuple[int, int, int] | None,
     query_type: str,
-) -> GET_QUERY_RETURN_TYPE | None:
+) -> GET_QUERY_RETURN_TYPE:
     if not check_date(date):
         print(INCORRECT_DATE_MSG)  # noqa: T201
         return None
