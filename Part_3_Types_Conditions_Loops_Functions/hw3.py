@@ -9,8 +9,8 @@ DATE_LEN = 10
 STATS_QUERY_LEN = 2
 NORMILISED_QUERY_LEN = 4
 
-TUPLE_INT_3 = tuple[int, int, int]
-GET_QUERY_RETURN_TYPE = tuple[str, str | None, float, TUPLE_INT_3]
+TUPLE_TRIPLE_INT = tuple[int, int, int]
+GET_QUERY_RETURN_TYPE = tuple[str, str | None, float, TUPLE_TRIPLE_INT]
 
 
 class DateStatistics:
@@ -44,7 +44,7 @@ def is_leap_year(year: int) -> bool:
     return year % 4 == 0
 
 
-def extract_date(maybe_dt: str) -> TUPLE_INT_3 | None:
+def extract_date(maybe_dt: str) -> TUPLE_TRIPLE_INT | None:
     """
     Парсит дату формата DD-MM-YYYY из строки.
 
@@ -66,7 +66,7 @@ def extract_date(maybe_dt: str) -> TUPLE_INT_3 | None:
     return (int(day), int(month), int(year))
 
 
-def check_date(date: TUPLE_INT_3 | None) -> bool:
+def check_date(date: TUPLE_TRIPLE_INT | None) -> bool:
     if not date:
         return False
     february = 29 if is_leap_year(date[2]) else 28
@@ -79,7 +79,7 @@ def get_query(
     inpt_list: list[str],
     inpt_len: int,
     category: str | None,
-    date: TUPLE_INT_3 | None,
+    date: TUPLE_TRIPLE_INT | None,
     query_type: str,
 ) -> GET_QUERY_RETURN_TYPE | None:
     if not date or not check_date(date):
@@ -94,7 +94,7 @@ def get_query(
     return (query_type, category, number, date)
 
 
-def split_query(inpt: str) -> tuple[str, str | None, float, TUPLE_INT_3] | None:
+def split_query(inpt: str) -> tuple[str, str | None, float, TUPLE_TRIPLE_INT] | None:
     inpt_list = list(inpt.split())
     additional_args = 0
     while len(inpt_list) < NORMILISED_QUERY_LEN:
@@ -114,7 +114,7 @@ def split_query(inpt: str) -> tuple[str, str | None, float, TUPLE_INT_3] | None:
             return None
 
 
-def print_stats(date_stats: DateStatistics, date: TUPLE_INT_3, capital: float) -> None:
+def print_stats(date_stats: DateStatistics, date: TUPLE_TRIPLE_INT, capital: float) -> None:
     month_income = date_stats.income - date_stats.outcome
     categories = sorted([(key, value) for key, value in date_stats.categories.items()], key=lambda x: x[0])
     print(f"Your statistics as of {'-'.join(str(i) for i in date)}:")  # noqa: T201
