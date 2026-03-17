@@ -12,8 +12,8 @@ NORMILISED_QUERY_LEN = 4
 
 class DateStatistics:
     def __init__(self) -> None:
-        self.income = 0.0
-        self.outcome = 0.0
+        self.income = float(0)
+        self.outcome = float(0)
         self.categories: dict[str, float] = {}
 
     def new_income(self, income: float) -> None:
@@ -53,13 +53,11 @@ def extract_date(maybe_dt: str) -> tuple[int, int, int] | None:
         return None
     if maybe_dt[2] != "-" or maybe_dt[5] != "-":
         return None
-    if not maybe_dt[0:2].isdigit():
-        return None
-    if not maybe_dt[3:5].isdigit():
+    if not maybe_dt[:2].isdigit() or not maybe_dt[3:5].isdigit():
         return None
     if not maybe_dt[6:].isdigit():
         return None
-    day = int(maybe_dt[0:2])
+    day = int(maybe_dt[:2])
     month = int(maybe_dt[3:5])
     year = int(maybe_dt[6:])
     return (day, month, year)
@@ -113,14 +111,16 @@ def split_query(inpt: str) -> tuple[str, str | None, float, tuple[int, int, int]
 def print_stats(date_stats: DateStatistics, date: tuple[int, int, int], capital: float) -> None:
     month_income = date_stats.income - date_stats.outcome
     categories = sorted([(key, value) for key, value in date_stats.categories.items()], key=lambda x: x[0])
-    print(f"""Your statistics as of {"-".join(str(i) for i in date)}:
-    Total capital: {capital} rubles
-    This month, the {"loss amounted to" if month_income < 0 else "profit amounted to"} {abs(month_income)} rubles
-    Income: {date_stats.income} rubles
-    Expenses: {date_stats.outcome} rubles
-
-    Details (category: amount):
-    {"\n".join([f"{i + 1}. {categories[i][0]}: {categories[i][1]}" for i in range(len(categories))])}""")  # noqa: T201
+    print(f"Your statistics as of {'-'.join(str(i) for i in date)}:")  # noqa: T201
+    print(f"Total capital: {capital} rubles")  # noqa: T201
+    print(  # noqa: T201
+        f"This month, the {'loss amounted to' if month_income < 0 else 'profit amounted to'} {abs(month_income)} rubles"
+    )
+    print(f"Income: {date_stats.income} rubles")  # noqa: T201
+    print(f"Expenses: {date_stats.outcome} rubles")  # noqa: T201
+    print()  # noqa: T201
+    print("Details (category: amount):")  # noqa: T201
+    print(f"{'\n'.join([f'{i + 1}. {categories[i][0]}: {categories[i][1]}' for i in range(len(categories))])}")  # noqa: T201
 
 
 def income_handler(amount: float, income_date: str) -> str:
@@ -128,7 +128,7 @@ def income_handler(amount: float, income_date: str) -> str:
 
 
 def main() -> None:
-    capital = 0.0
+    capital = float(0)
     date_stats = {}
 
     while True:
