@@ -102,17 +102,11 @@ def split_query(inpt: str) -> tuple[str, str | None, float, tuple[int, int, int]
     date = extract_date(inpt_list[-1])
     match query_type:
         case "income":
-            if additional_args != 1:
-                return None
-            return get_query(inpt_list, 3, None, date, query_type)
+            return get_query(inpt_list, 3, None, date, query_type) if additional_args != 1 else None
         case "cost":
-            if additional_args != 0:
-                return None
-            return get_query(inpt_list, 4, inpt_list[1], date, query_type)
+            return get_query(inpt_list, 4, inpt_list[1], date, query_type) if additional_args != 0 else None
         case "stats":
-            if additional_args != 2:
-                return None
-            return get_query(inpt_list, 2, None, date, query_type)
+            return get_query(inpt_list, 2, None, date, query_type) if additional_args != STATS_QUERY_LEN else None
         case _:
             print(UNKNOWN_COMMAND_MSG)  # noqa: T201
             return None
