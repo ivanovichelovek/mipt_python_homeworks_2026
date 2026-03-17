@@ -80,7 +80,7 @@ def get_query(
     date: tuple[int, int, int] | None,
     query_type: str,
 ) -> GET_QUERY_RETURN_TYPE:
-    if not check_date(date):
+    if not (date and check_date(date)):
         print(INCORRECT_DATE_MSG)  # noqa: T201
         return None
     print(OP_SUCCESS_MSG)  # noqa: T201
