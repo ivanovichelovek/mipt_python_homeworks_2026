@@ -134,7 +134,9 @@ def split_query(inpt: str) -> tuple[str, str | None, float, TUPLE_TRIPLE_INT] | 
 
 def print_stats(date_stats: DateStatistics, date: TUPLE_TRIPLE_INT, capital: float) -> None:
     month_income = date_stats.income - date_stats.outcome
-    categories = sorted([(key, value) for key, value in date_stats.categories.items()], key=lambda x: x[0])
+    categories_list = [(key, value) for key, value in date_stats.categories.items()]
+    categories = sorted(categories_list, key=lambda x: x[0])
+    categories_numed_list = [f'{i + 1}. {categories[i][0]}: {categories[i][1]}' for i in range(len(categories))]
     print(f"Your statistics as of {'-'.join(str(i) for i in date)}:")  # noqa: T201
     print(f"Total capital: {capital} rubles")  # noqa: T201
     print(  # noqa: T201
@@ -144,7 +146,7 @@ def print_stats(date_stats: DateStatistics, date: TUPLE_TRIPLE_INT, capital: flo
     print(f"Expenses: {date_stats.outcome} rubles")  # noqa: T201
     print()  # noqa: T201
     print("Details (category: amount):")  # noqa: T201
-    print(f"{'\n'.join([f'{i + 1}. {categories[i][0]}: {categories[i][1]}' for i in range(len(categories))])}")  # noqa: T201
+    print(f"{'\n'.join(categories_numed_list)}")  # noqa: T201
 
 
 def income_handler(amount: float, income_date: str) -> str:
