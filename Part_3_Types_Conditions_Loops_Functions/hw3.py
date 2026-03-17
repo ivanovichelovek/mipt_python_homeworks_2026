@@ -91,7 +91,20 @@ def get_query(
         if number <= 0:
             print(INCORRECT_DATE_MSG)  # noqa: T201
             return None
+    else:
+        number = 0
     return (query_type, category, number, date)
+
+def check_args(query_type: str, additional_args: int) -> bool:
+    match query_type:
+        case "income":
+            return additional_args == 1
+        case "cost":
+            return additional_args == 0
+        case "stats":
+            return additional_args == STATS_QUERY_LEN
+        case _:
+            return False
 
 
 def split_query(inpt: str) -> tuple[str, str | None, float, TUPLE_TRIPLE_INT] | None:
@@ -102,13 +115,17 @@ def split_query(inpt: str) -> tuple[str, str | None, float, TUPLE_TRIPLE_INT] | 
         inpt_list.insert(1, "")
     query_type = inpt_list[0]
     date = extract_date(inpt_list[-1])
+    check_answer = check_args(query_type, additional_args)
+    if not check_answer:
+        print(UNKNOWN_COMMAND_MSG)
+        return None
     match query_type:
         case "income":
-            return get_query(inpt_list, 3, None, date, query_type) if additional_args == 1 else None
+            return get_query(inpt_list, 3, None, date, query_type)
         case "cost":
-            return get_query(inpt_list, 4, inpt_list[1], date, query_type) if additional_args == 0 else None
+            return get_query(inpt_list, 4, inpt_list[1], date, query_type)
         case "stats":
-            return get_query(inpt_list, 2, None, date, query_type) if additional_args == STATS_QUERY_LEN else None
+            return get_query(inpt_list, 2, None, date, query_type)
         case _:
             print(UNKNOWN_COMMAND_MSG)  # noqa: T201
             return None
