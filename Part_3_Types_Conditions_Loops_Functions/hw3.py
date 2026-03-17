@@ -9,6 +9,8 @@ DATE_LEN = 10
 STATS_QUERY_LEN = 2
 NORMILISED_QUERY_LEN = 4
 
+GET_QUERY_RETURN_TYPE = tuple[str, str | None, float, tuple[int, int, int]]
+
 
 class DateStatistics:
     def __init__(self) -> None:
@@ -53,14 +55,14 @@ def extract_date(maybe_dt: str) -> tuple[int, int, int] | None:
         return None
     if maybe_dt[2] != "-" or maybe_dt[5] != "-":
         return None
-    if not maybe_dt[:2].isdigit() or not maybe_dt[3:5].isdigit():
+    day = maybe_dt[:2]
+    month = maybe_dt[3:5]
+    year = maybe_dt[6:]
+    if not (day.isdigit() or year.isdigit()):
         return None
-    if not maybe_dt[6:].isdigit():
+    if not month.isdigit():
         return None
-    day = int(maybe_dt[:2])
-    month = int(maybe_dt[3:5])
-    year = int(maybe_dt[6:])
-    return (day, month, year)
+    return (int(day), int(month), int(year))
 
 
 def check_date(date: tuple[int, int, int] | None) -> bool:
@@ -77,8 +79,8 @@ def get_query(
     category: str | None,
     date: tuple[int, int, int] | None,
     query_type: str,
-) -> tuple[str, str | None, float, tuple[int, int, int]] | None:
-    if len(inpt_list) != inpt_len or not date or not check_date(date):
+) -> GET_QUERY_RETURN_TYPE | None:
+    if not check_date(date):
         print(INCORRECT_DATE_MSG)  # noqa: T201
         return None
     print(OP_SUCCESS_MSG)  # noqa: T201
@@ -92,16 +94,24 @@ def get_query(
 
 def split_query(inpt: str) -> tuple[str, str | None, float, tuple[int, int, int]] | None:
     inpt_list = list(inpt.split())
+    additional_args = 0
     while len(inpt_list) < NORMILISED_QUERY_LEN:
+        additional_args += 1
         inpt_list.insert(1, "")
     query_type = inpt_list[0]
     date = extract_date(inpt_list[-1])
     match query_type:
         case "income":
+            if additional_args != 1:
+                return None
             return get_query(inpt_list, 3, None, date, query_type)
         case "cost":
+            if additional_args != 0:
+                return None
             return get_query(inpt_list, 4, inpt_list[1], date, query_type)
         case "stats":
+            if additional_args != 2:
+                return None
             return get_query(inpt_list, 2, None, date, query_type)
         case _:
             print(UNKNOWN_COMMAND_MSG)  # noqa: T201
