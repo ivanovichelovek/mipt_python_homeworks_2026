@@ -117,7 +117,7 @@ def split_query(inpt: str) -> tuple[str, str | None, float, TUPLE_TRIPLE_INT] | 
     date = extract_date(inpt_list[-1])
     check_answer = check_args(query_type, additional_args)
     if not check_answer:
-        print(UNKNOWN_COMMAND_MSG)
+        print(UNKNOWN_COMMAND_MSG)  # noqa: T201
         return None
     match query_type:
         case "income":
