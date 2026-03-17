@@ -147,13 +147,13 @@ def print_stats(date_stats: DateStatistics, date_str: str, capital: float) -> No
     print(f"Your statistics as of {date_str}:")
     print(f"Total capital: {capital} rubles")
     print(
-        f"This month, the {"loss amounted to" if month_income < 0 else "profit amounted to"} {abs(month_income)} rubles"
+        f"This month, the {'loss amounted to' if month_income < 0 else 'profit amounted to'} {abs(month_income)} rubles"
     )
     print(f"Income: {date_stats.income} rubles")
     print(f"Expenses: {date_stats.outcome} rubles")
     print()
     print("Details (category: amount):")
-    print(f"{"\n".join(categories_numed_list)}")
+    print(f"{'\n'.join(categories_numed_list)}")
 
 
 def income_handler(amount: float, income_date: str) -> str:
@@ -168,20 +168,20 @@ def main() -> None:
         query = split_query(input())
         if not query:
             continue
-        query_type, category, number, date = query
+        date = query[3]
         if date not in date_stats:
             date_stats[date] = DateStatistics()
-        match query_type:
+        match query[0]:
             case "income":
-                date_stats[date].new_income(income=number)
-                capital += number
+                date_stats[date].new_income(income=query[2])
+                capital += query[2]
             case "cost":
-                if not category:
+                if not query[1]:
                     continue
-                date_stats[date].new_outcome(category=category, outcome=number)
-                capital -= number
+                date_stats[date].new_outcome(category=query[1], outcome=query[2])
+                capital -= query[2]
             case "stats":
-                print_stats(date_stats[date], date, capital)
+                print_stats(date_stats[date], "-".join(str(i) for i in date), capital)
 
 
 if __name__ == "__main__":
