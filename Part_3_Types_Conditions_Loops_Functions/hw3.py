@@ -133,7 +133,9 @@ def split_query(inpt: str) -> tuple[str, str | None, float, TUPLE_TRIPLE_INT] | 
 
 
 def get_category_string(categories: list[tuple[str, float]], i: int) -> str:
-    return f"{i + 1}. {categories[i][0]}: {categories[i][1]}"
+    category = categories[i][0]
+    value = categories[i][1]
+    return str({i + 1}) + ". " + f"{category}: {value}"
 
 
 def print_stats(date_stats: DateStatistics, date: TUPLE_TRIPLE_INT, capital: float) -> None:
