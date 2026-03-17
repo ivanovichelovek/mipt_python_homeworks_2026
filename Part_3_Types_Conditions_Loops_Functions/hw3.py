@@ -95,6 +95,7 @@ def get_query(
         number = 0
     return (query_type, category, number, date)
 
+
 def check_args(query_type: str, additional_args: int) -> bool:
     match query_type:
         case "income":
