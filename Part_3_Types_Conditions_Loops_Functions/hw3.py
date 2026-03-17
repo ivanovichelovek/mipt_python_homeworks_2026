@@ -83,13 +83,13 @@ def get_query(
     query_type: str,
 ) -> GET_QUERY_RETURN_TYPE | None:
     if not date or not check_date(date):
-        print(INCORRECT_DATE_MSG)  # noqa: T201
+        print(INCORRECT_DATE_MSG)
         return None
-    print(OP_SUCCESS_MSG)  # noqa: T201
+    print(OP_SUCCESS_MSG)
     if inpt_len > STATS_QUERY_LEN:
         number = float(inpt_list[-2].replace(",", "."))
         if number <= 0:
-            print(INCORRECT_DATE_MSG)  # noqa: T201
+            print(INCORRECT_DATE_MSG)
             return None
     else:
         number = 0
@@ -118,7 +118,7 @@ def split_query(inpt: str) -> tuple[str, str | None, float, TUPLE_TRIPLE_INT] | 
     date = extract_date(inpt_list[-1])
     check_answer = check_args(query_type, additional_args)
     if not check_answer:
-        print(UNKNOWN_COMMAND_MSG)  # noqa: T201
+        print(UNKNOWN_COMMAND_MSG)
         return None
     match query_type:
         case "income":
@@ -128,7 +128,7 @@ def split_query(inpt: str) -> tuple[str, str | None, float, TUPLE_TRIPLE_INT] | 
         case "stats":
             return get_query(inpt_list, 2, None, date, query_type)
         case _:
-            print(UNKNOWN_COMMAND_MSG)  # noqa: T201
+            print(UNKNOWN_COMMAND_MSG)
             return None
 
 
@@ -144,15 +144,15 @@ def print_stats(date_stats: DateStatistics, date_str: str, capital: float) -> No
     categories = [(key, value) for key, value in date_stats.categories.items()]
     categories = sorted(categories, key=lambda x: x[0])
     categories_numed_list = [get_category_string(categories, i) for i in range(len(categories))]
-    print(f"Your statistics as of {date_str}:")  # noqa: T201
-    print(f"Total capital: {capital} rubles")  # noqa: T201
-    print(  # noqa: T201
+    print(f"Your statistics as of {date_str}:")
+    print(f"Total capital: {capital} rubles")
+    print(
         f"This month, the {"loss amounted to" if month_income < 0 else "profit amounted to"} {abs(month_income)} rubles"
     )
-    print(f"Income: {date_stats.income} rubles")  # noqa: T201
-    print(f"Expenses: {date_stats.outcome} rubles")  # noqa: T201
-    print()  # noqa: T201
-    print("Details (category: amount):")  # noqa: T201
+    print(f"Income: {date_stats.income} rubles")
+    print(f"Expenses: {date_stats.outcome} rubles")
+    print()
+    print("Details (category: amount):")
     print(f"{"\n".join(categories_numed_list)}")
 
 
