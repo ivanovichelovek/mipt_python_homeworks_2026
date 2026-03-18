@@ -193,6 +193,28 @@ def proccess_new_query(capital: float, date_stats: dict[TUPLE_TRIPLE_INT, DateSt
     return True
 
 
+def proccess_new_query(capital: float, date_stats: dict[TUPLE_TRIPLE_INT, DateStatistics]) -> bool:
+    query = split_query(input())
+    if not query:
+        return False
+    date = query[3]
+    if date not in date_stats:
+        date_stats[date] = DateStatistics()
+    match query[0]:
+        case "income":
+            date_stats[date].new_income(income=query[2])
+            capital += query[2]
+        case "cost":
+            if not query[1]:
+                return True
+            date_stats[date].new_outcome(category=query[1], outcome=query[2])
+            capital -= query[2]
+        case "stats":
+            date_str = "-".join(str(i) for i in date)
+            print_stats(date_stats[date], date_str, capital)
+    return True
+
+
 def main() -> None:
     capital = float(0)
     date_stats: dict[TUPLE_TRIPLE_INT, DateStatistics] = {}
