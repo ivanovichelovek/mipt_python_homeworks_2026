@@ -139,6 +139,19 @@ def get_category_string(categories: list[tuple[str, float]], i: int) -> str:
     return f"{index}. {category}: {value}"
 
 
+def print_month_capital(month_income: float) -> None:
+    month_income_abs = abs(month_income)
+    print_message = "loss amounted to" if month_income < 0 else "profit amounted to"
+    print(
+        f"This month, the {print_message} {month_income_abs} rubles"
+    )
+
+
+def print_categories_list(categories_numed_list: list[str]) -> None:
+    categories_numed_list_str = "\n".join(categories_numed_list)
+    print(f"{categories_numed_list_str}")
+
+
 def print_stats(date_stats: DateStatistics, date_str: str, capital: float) -> None:
     month_income = date_stats.income - date_stats.outcome
     categories = [(key, value) for key, value in date_stats.categories.items()]
@@ -146,42 +159,47 @@ def print_stats(date_stats: DateStatistics, date_str: str, capital: float) -> No
     categories_numed_list = [get_category_string(categories, i) for i in range(len(categories))]
     print(f"Your statistics as of {date_str}:")
     print(f"Total capital: {capital} rubles")
-    print(
-        f"This month, the {'loss amounted to' if month_income < 0 else 'profit amounted to'} {abs(month_income)} rubles"
-    )
+    print_month_capital(month_income)
     print(f"Income: {date_stats.income} rubles")
     print(f"Expenses: {date_stats.outcome} rubles")
     print()
     print("Details (category: amount):")
-    print(f"{'\n'.join(categories_numed_list)}")
+    print_categories_list(categories_numed_list)
 
 
 def income_handler(amount: float, income_date: str) -> str:
     return f"{OP_SUCCESS_MSG} {amount=} {income_date=}"
 
 
+def proccess_new_query(capital: float, date_stats: dict[TUPLE_TRIPLE_INT, DateStatistics]) -> bool:
+    query = split_query(input())
+    if not query:
+        return False
+    date = query[3]
+    if date not in date_stats:
+        date_stats[date] = DateStatistics()
+    match query[0]:
+        case "income":
+            date_stats[date].new_income(income=query[2])
+            capital += query[2]
+        case "cost":
+            if not query[1]:
+                return True
+            date_stats[date].new_outcome(category=query[1], outcome=query[2])
+            capital -= query[2]
+        case "stats":
+            date_str = "-".join(str(i) for i in date)
+            print_stats(date_stats[date], date_str, capital)
+    return True
+
+
 def main() -> None:
     capital = float(0)
-    date_stats = {}
+    date_stats: dict[TUPLE_TRIPLE_INT, DateStatistics] = {}
 
     while True:
-        query = split_query(input())
-        if not query:
-            continue
-        date = query[3]
-        if date not in date_stats:
-            date_stats[date] = DateStatistics()
-        match query[0]:
-            case "income":
-                date_stats[date].new_income(income=query[2])
-                capital += query[2]
-            case "cost":
-                if not query[1]:
-                    continue
-                date_stats[date].new_outcome(category=query[1], outcome=query[2])
-                capital -= query[2]
-            case "stats":
-                print_stats(date_stats[date], "-".join(str(i) for i in date), capital)
+        if not proccess_new_query(capital=capital, date_stats=date_stats):
+            break
 
 
 if __name__ == "__main__":
