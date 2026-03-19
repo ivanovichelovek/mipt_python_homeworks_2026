@@ -13,7 +13,13 @@ STATS_QUERY_LEN = 2
 NORMILISED_QUERY_LEN = 4
 
 TUPLE_TRIPLE_INT = tuple[int, int, int]
-GET_QUERY_RETURN_TYPE = tuple[str, str | None, float, str | None]
+QUERY_TYPE = tuple[str, str | None, float, str | None]
+CATEGORY_STATS_TYPE = list[tuple[str, float]]
+DATE_STATS_TYPE = tuple[float, float, float, CATEGORY_STATS_TYPE]
+
+INCOME = "income"
+COST = "cost"
+STATS = "stats"
 
 
 EXPENSE_CATEGORIES = {  # noqa: RUF100, WPS407
@@ -113,7 +119,7 @@ def get_query(
     category: str | None,
     date: str | None,
     query_type: str,
-) -> GET_QUERY_RETURN_TYPE | None:
+) -> QUERY_TYPE | None:
     if check_date_main(date):
         print(INCORRECT_DATE_MSG)
         return None
@@ -128,38 +134,53 @@ def get_query(
 
 
 def check_args(query_type: str, additional_args: int) -> bool:
-    match query_type:
-        case "income":
-            return additional_args == 1
-        case "cost":
-            return additional_args in (0, STATS_QUERY_LEN)
-        case "stats":
-            return additional_args == STATS_QUERY_LEN
-        case _:
-            return False
+    if query_type == INCOME:
+        return additional_args == 1
+    if query_type == COST:
+        return additional_args in (0, STATS_QUERY_LEN)
+    if query_type == STATS:
+        return additional_args == STATS_QUERY_LEN
+    return False
 
 
-def split_query(inpt: str) -> tuple[str, str | None, float, str | None] | None:
+def normalize_query_parts(inpt: str) -> tuple[list[str], int]:
     inpt_list = list(inpt.split())
     additional_args = 0
     while len(inpt_list) < NORMILISED_QUERY_LEN:
         additional_args += 1
         inpt_list.insert(1, "")
+    return inpt_list, additional_args
+
+
+def build_income_query(inpt_list: list[str]) -> QUERY_TYPE | None:
+    return get_query(inpt_list, 3, None, inpt_list[-1], INCOME)
+
+
+def build_cost_query(inpt_list: list[str], additional_args: int) -> QUERY_TYPE | None:
+    needed_args = 4 - additional_args
+    return get_query(inpt_list, needed_args, inpt_list[1], inpt_list[-1], COST)
+
+
+def build_stats_query(inpt_list: list[str]) -> QUERY_TYPE | None:
+    return get_query(inpt_list, 2, None, inpt_list[-1], STATS)
+
+
+def split_query(inpt: str) -> QUERY_TYPE | None:
+    inpt_list, additional_args = normalize_query_parts(inpt)
     query_type = inpt_list[0]
     if not check_args(query_type, additional_args):
         print(UNKNOWN_COMMAND_MSG)
         return None
-    match query_type:
-        case "income":
-            return get_query(inpt_list, 3, None, inpt_list[-1], query_type)
-        case "cost":
-            needed_args = 4 - additional_args
-            return get_query(inpt_list, needed_args, inpt_list[1], inpt_list[-1], query_type)
-        case "stats":
-            return get_query(inpt_list, 2, None, inpt_list[-1], query_type)
-        case _:
-            print(UNKNOWN_COMMAND_MSG)
-            return None
+
+    if query_type == INCOME:
+        return build_income_query(inpt_list)
+    if query_type == COST:
+        return build_cost_query(inpt_list, additional_args)
+    if query_type == STATS:
+        return build_stats_query(inpt_list)
+
+    print(UNKNOWN_COMMAND_MSG)
+    return None
 
 
 def get_category_string(categories: list[tuple[str, float]], i: int) -> str:
@@ -182,13 +203,25 @@ def print_categories_list(categories_numed_list: list[str]) -> None:
     print(f"{categories_numed_list_str}")
 
 
-def print_stats(date_str: str) -> None:
+def get_category_name(item: tuple[str, float]) -> str:
+    return item[0]
+
+
+def get_stats_for_date(date_str: str) -> DATE_STATS_TYPE:
     income = date_stats_capital[date_str][0]
     cost = date_stats_capital[date_str][1]
     month_income = income - cost
-    categories = [(key, value) for key, value in date_stats_categories[date_str].items()]
-    categories = sorted(categories, key=lambda x: x[0])
-    categories_numed_list = [get_category_string(categories, i) for i in range(len(categories))]
+    category_items = date_stats_categories[date_str].items()
+    categories = sorted(category_items, key=get_category_name)
+    return income, cost, month_income, categories
+
+
+def build_category_lines(categories: list[tuple[str, float]]) -> list[str]:
+    return [get_category_string(categories, index) for index in range(len(categories))]
+
+
+def print_stats(date_str: str) -> None:
+    income, cost, month_income, categories = get_stats_for_date(date_str)
     print(f"Your statistics as of {date_str}:")
     print(f"Total capital: {capital} rubles")
     print_month_capital(month_income)
@@ -196,7 +229,7 @@ def print_stats(date_str: str) -> None:
     print(f"Expenses: {cost} rubles")
     print()
     print("Details (category: amount):")
-    print_categories_list(categories_numed_list)
+    print_categories_list(build_category_lines(categories))
 
 
 def income_handler(amount: float, income_date: str) -> str:
@@ -242,37 +275,57 @@ def cost_categories_handler() -> str:
 
 
 def stats_handler(report_date: str) -> str:
+    if report_date not in date_stats_capital or report_date not in date_stats_categories:
+        return INCORRECT_DATE_MSG
     print_stats(report_date)
     return f"Statistic for {report_date}"
 
 
+def handle_income_query(query: QUERY_TYPE) -> None:
+    if query[3] is None:
+        print(UNKNOWN_COMMAND_MSG)
+        return
+    print(income_handler(query[2], query[3]))
+
+
+def handle_cost_query(query: QUERY_TYPE) -> None:
+    if query[2] == 0:
+        print(cost_categories_handler())
+        return
+    if query[3] is None or query[1] is None:
+        print(UNKNOWN_COMMAND_MSG)
+        return
+    print(cost_handler(query[1], query[2], query[3]))
+
+
+def handle_stats_query(query: QUERY_TYPE) -> None:
+    if query[3] is None:
+        print(UNKNOWN_COMMAND_MSG)
+        return
+    print(stats_handler(query[3]))
+
+
+def execute_query(query: QUERY_TYPE) -> None:
+    if query[0] == INCOME:
+        handle_income_query(query)
+    elif query[0] == COST:
+        handle_cost_query(query)
+    elif query[0] == STATS:
+        handle_stats_query(query)
+
+
 def proccess_new_query() -> bool:
     inpt = input()
-    if not inpt:
-        return False
-    query = split_query(inpt)
-    if not query:
-        return True
-    match query[0]:
-        case "income":
-            if not query[3]:
-                print(UNKNOWN_COMMAND_MSG)
-                return True
-            print(income_handler(query[2], query[3]))
-        case "cost":
-            if not query[2]:
-                print(cost_categories_handler())
-            else:
-                if not query[3] or not query[1]:
-                    print(UNKNOWN_COMMAND_MSG)
-                    return True
-                print(cost_handler(query[1], query[2], query[3]))
-        case "stats":
-            if not query[3]:
-                print(UNKNOWN_COMMAND_MSG)
-                return True
-            print(stats_handler(query[3]))
-    return True
+    should_continue = True
+
+    if inpt == "":
+        should_continue = False
+    else:
+        query = split_query(inpt)
+        if query is not None:
+            execute_query(query)
+
+    return should_continue
 
 
 def main() -> None:
