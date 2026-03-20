@@ -47,12 +47,12 @@ S_co = TypeVar("S_co", covariant=True)
 
 class IncomeBuilder[S_co](Protocol):
     def __call__(self, **kwargs: Unpack[IncomeKwargs]) -> S_co:
-        pass
+        raise NotImplementedError
 
 
 class CostBuilder[S_co](Protocol):
     def __call__(self, **kwargs: Unpack[CostKwargs]) -> S_co:
-        pass
+        raise NotImplementedError
 
 
 @register_fixture
