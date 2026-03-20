@@ -1,5 +1,5 @@
-from Part_3_Types_Conditions_Loops_Functions import hw3
-from Part_3_Types_Conditions_Loops_Functions.tests.conftest import Cost, CostBuilder, parse_date
+from part3_types_conditions_loops_functions import hw3
+from part3_types_conditions_loops_functions.tests.conftest import Cost, CostBuilder, parse_date
 
 
 def test_cost_success(valid_cost: Cost) -> None:

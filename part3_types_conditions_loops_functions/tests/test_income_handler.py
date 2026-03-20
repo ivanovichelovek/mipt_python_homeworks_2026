@@ -1,5 +1,5 @@
-from Part_3_Types_Conditions_Loops_Functions import hw3
-from Part_3_Types_Conditions_Loops_Functions.tests.conftest import Income, IncomeBuilder, parse_date
+from part3_types_conditions_loops_functions import hw3
+from part3_types_conditions_loops_functions.tests.conftest import Income, IncomeBuilder, parse_date
 
 
 def test_income_success(valid_income: Income) -> None:

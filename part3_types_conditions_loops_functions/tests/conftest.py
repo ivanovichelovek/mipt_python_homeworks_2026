@@ -8,7 +8,7 @@ from faker import Faker
 from polyfactory.factories import DataclassFactory
 from polyfactory.pytest_plugin import register_fixture
 
-from Part_3_Types_Conditions_Loops_Functions import hw3
+from part3_types_conditions_loops_functions import hw3
 
 DATE_FORMAT = "%d-%m-%Y"
 
