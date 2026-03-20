@@ -11,7 +11,6 @@ OP_SUCCESS_MSG = "Added"
 DATE_LEN = 10
 STATS_QUERY_LEN = 2
 NORMILISED_QUERY_LEN = 4
-
 TUPLE_TRIPLE_INT = tuple[int, int, int]
 QUERY_TYPE = tuple[str, str | None, float, str | None]
 CATEGORY_STATS_TYPE = list[tuple[str, float]]
