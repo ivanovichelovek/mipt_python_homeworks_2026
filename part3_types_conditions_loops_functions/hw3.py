@@ -288,9 +288,6 @@ def handle_income_query(query: QUERY_TYPE) -> None:
 
 
 def handle_cost_query(query: QUERY_TYPE) -> None:
-    if query[2] == 0:
-        print(cost_categories_handler())
-        return
     if query[3] is None or query[1] is None:
         print(UNKNOWN_COMMAND_MSG)
         return
@@ -315,16 +312,17 @@ def execute_query(query: QUERY_TYPE) -> None:
 
 def proccess_new_query() -> bool:
     inpt = input()
-    should_continue = True
 
     if inpt == "":
-        should_continue = False
-    else:
-        query = split_query(inpt)
-        if query is not None:
-            execute_query(query)
+        return False
+    if inpt == "cost categories":
+        print(cost_categories_handler())
+        return True
+    query = split_query(inpt)
+    if query is not None:
+        execute_query(query)
 
-    return should_continue
+    return True
 
 
 def main() -> None:
