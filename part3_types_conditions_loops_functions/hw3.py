@@ -30,7 +30,7 @@ EXPENSE_CATEGORIES = {  # noqa: RUF100, WPS407
     "Clothing": ("Outerwear", "Casual", "Shoes", "Accessories"),
     "Education": ("Courses", "Books", "Tutors"),
     "Communications": ("Mobile", "Internet", "Subscriptions"),
-    "Other": ("SomeCategory", "SomeOtherCategory"),
+    "Other": ("Other"),
 }
 
 
