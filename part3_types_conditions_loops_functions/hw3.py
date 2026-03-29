@@ -192,9 +192,7 @@ def get_category_string(categories: list[tuple[str, float]], i: int) -> str:
 def print_month_capital(month_income: float) -> None:
     month_income_abs = abs(month_income)
     print_message = "loss amounted to" if month_income < 0 else "profit amounted to"
-    print(
-        f"This month, the {print_message} {month_income_abs} rubles"
-    )
+    print(f"This month, the {print_message} {month_income_abs} rubles")
 
 
 def print_categories_list(categories_numed_list: list[str]) -> None:
@@ -222,7 +220,7 @@ def build_category_lines(categories: list[tuple[str, float]]) -> list[str]:
 def print_stats(date_str: str) -> None:
     income, cost, month_income, categories = get_stats_for_date(date_str)
     print(f"Your statistics as of {date_str}:")
-    print(f"Total capital: {state["capital"]} rubles")
+    print(f"Total capital: {state['capital']} rubles")
     print_month_capital(month_income)
     print(f"Income: {income} rubles")
     print(f"Expenses: {cost} rubles")
@@ -253,8 +251,9 @@ def cost_handler(category_name: str, amount: float, income_date: str) -> str:
     if check_date_main(income_date):
         return INCORRECT_DATE_MSG
     loc_cat = category_name.split("::")[1]
-    financial_transactions_storage.append({"category": category_name,
-                                           "amount": amount, "date": extract_date(income_date)})
+    financial_transactions_storage.append(
+        {"category": category_name, "amount": amount, "date": extract_date(income_date)}
+    )
     state["capital"] -= amount
     if income_date not in date_stats_categories:
         date_stats_capital[income_date] = [float(0), float(0)]
