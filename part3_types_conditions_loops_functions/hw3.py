@@ -21,7 +21,7 @@ COST = "cost"
 STATS = "stats"
 
 
-EXPENSE_CATEGORIES = {  # noqa: RUF100, WPS407
+EXPENSE_CATEGORIES = {
     "Food": ("Supermarket", "Restaurants", "FastFood", "Coffee", "Delivery"),
     "Transport": ("Taxi", "Public transport", "Gas", "Car service"),
     "Housing": ("Rent", "Utilities", "Repairs", "Furniture"),
@@ -34,7 +34,7 @@ EXPENSE_CATEGORIES = {  # noqa: RUF100, WPS407
 }
 
 
-capital: float = float(0)
+state: dict[str, float] = {"capital": float(0)}
 date_stats_capital: dict[str, list[float]] = {}
 date_stats_categories: dict[str, dict[str, float]] = {}
 financial_transactions_storage: list[dict[str, Any]] = []
@@ -222,7 +222,7 @@ def build_category_lines(categories: list[tuple[str, float]]) -> list[str]:
 def print_stats(date_str: str) -> None:
     income, cost, month_income, categories = get_stats_for_date(date_str)
     print(f"Your statistics as of {date_str}:")
-    print(f"Total capital: {capital} rubles")
+    print(f"Total capital: {state["capital"]} rubles")
     print_month_capital(month_income)
     print(f"Income: {income} rubles")
     print(f"Expenses: {cost} rubles")
@@ -232,13 +232,12 @@ def print_stats(date_str: str) -> None:
 
 
 def income_handler(amount: float, income_date: str) -> str:
-    global capital  # noqa: PLW0603
     if check_number(str(amount)):
         return NONPOSITIVE_VALUE_MSG
     if check_date_main(income_date):
         return INCORRECT_DATE_MSG
     financial_transactions_storage.append({"amount": amount, "date": extract_date(income_date)})
-    capital += amount
+    state["capital"] += amount
     if income_date not in date_stats_capital:
         date_stats_capital[income_date] = [float(0), float(0)]
         date_stats_categories[income_date] = {}
@@ -247,7 +246,6 @@ def income_handler(amount: float, income_date: str) -> str:
 
 
 def cost_handler(category_name: str, amount: float, income_date: str) -> str:
-    global capital  # noqa: PLW0603
     if check_category(category_name):
         return NOT_EXISTS_CATEGORY
     if check_number(str(amount)):
@@ -257,7 +255,7 @@ def cost_handler(category_name: str, amount: float, income_date: str) -> str:
     loc_cat = category_name.split("::")[1]
     financial_transactions_storage.append({"category": category_name,
                                            "amount": amount, "date": extract_date(income_date)})
-    capital -= amount
+    state["capital"] -= amount
     if income_date not in date_stats_categories:
         date_stats_capital[income_date] = [float(0), float(0)]
         date_stats_categories[income_date] = {}
