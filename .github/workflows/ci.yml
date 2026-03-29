@@ -4,15 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       package_path:
-        description: 'Path to package directory'
+        description: "Path to package directory"
         required: true
       run_ty:
-        description: 'Run ty type checker'
+        description: "Run ty type checker"
         required: false
         default: false
         type: boolean
       run_pyrefly:
-        description: 'Run pyrefly type checker'
+        description: "Run pyrefly type checker"
         required: false
         default: false
         type: boolean
