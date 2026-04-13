@@ -1,6 +1,6 @@
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, TypeVar
+from typing import Any, Self, TypeVar
 
 from part4_oop.interfaces import Cache, HasCache, Policy, Storage
 
@@ -104,10 +104,11 @@ class LFUPolicy(Policy[K]):
         self._last_key: K | None = None
 
     def register_access(self, key: K) -> None:
+        self._last_key = None
         if key not in self._key_counter:
             self._key_counter[key] = 0
+            self._last_key = key
         self._key_counter[key] += 1
-        self._last_key = key
 
     def get_key_to_evict(self) -> K | None:
         if len(self._key_counter) < self.capacity:
@@ -140,18 +141,19 @@ class MIPTCache(Cache[K, V]):
         self.policy = policy
 
     def set(self, key: K, value: V) -> None:
-        del_key = self.policy.get_key_to_evict()
-        if del_key is not None:
-            self.policy.remove_key(del_key)
-            self.storage.remove(del_key)
+        if not self.storage.exists(key):
+            del_key = self.policy.get_key_to_evict()
+            if del_key is not None:
+                self.policy.remove_key(del_key)
+                self.storage.remove(del_key)
         self.policy.register_access(key)
         self.storage.set(key, value)
 
     def get(self, key: K) -> V | None:
-        self.policy.register_access(key)
-        if self.storage.exists(key):
-            return self.storage.get(key)
-        return None
+        val = self.storage.get(key)
+        if val is not None:
+            self.policy.register_access(key)
+        return val
 
     def exists(self, key: K) -> bool:
         return self.storage.exists(key)
@@ -170,11 +172,12 @@ class CachedProperty[V]:
         self._func = func
         self._key = func.__name__
 
-    def __get__(self, instance: HasCache[Any, Any] | None, owner: type) -> V:
+    def __get__(self, instance: HasCache[Any, V] | None, owner: type) -> V | Self:
         if instance is None:
-            return self  # type: ignore[return-value]
-        if instance.cache.exists(self._key):
-            return instance.cache.get(self._key)  # type: ignore[return-value]
-        value = self._func(instance)
-        instance.cache.set(self._key, value)
-        return value
+            return self
+        value = instance.cache.get(self._key)
+        if value is not None:
+            return value
+        res = self._func(instance)
+        instance.cache.set(self._key, res)
+        return res
