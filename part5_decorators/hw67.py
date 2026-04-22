@@ -37,9 +37,9 @@ class CircuitBreaker:
         triggers_on: type[Exception] = Exception,
     ):
         errors = []
-        if critical_count <= 0:
+        if not isinstance(critical_count, int) or critical_count <= 0:
             errors.append(ValueError(INVALID_CRITICAL_COUNT))
-        if time_to_recover <= 0:
+        if not isinstance(time_to_recover, int) or time_to_recover <= 0:
             errors.append(ValueError(INVALID_RECOVERY_TIME))
         if len(errors) > 0:
             raise ExceptionGroup(VALIDATIONS_FAILED, errors)
