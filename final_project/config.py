@@ -18,12 +18,10 @@ DEFAULT_TEMPERATURE = 0.7
 DEFAULT_MODEL = 'gemma3:270m'
 
 ERR_NO_API_KEY = (
-    'API-ключ не настроен. '
-    'Укажите API_KEY в переменных окружения или api_key в config.yaml.'
+    'API-ключ не настроен. Укажите API_KEY в переменных окружения или api_key в config.yaml.'
 )
 ERR_NO_API_HOST = (
-    'Хост API не настроен. '
-    'Укажите API_HOST в переменных окружения или api_host в config.yaml.'
+    'Хост API не настроен. Укажите API_HOST в переменных окружения или api_host в config.yaml.'
 )
 ERR_NO_CONFIG = 'Конфигурация не найдена. Задайте переменные окружения или создайте config.yaml.'
 ERR_TEMPERATURE = 'temperature должно быть числом с плавающей точкой от 0.0 до 1.0.'

@@ -32,9 +32,7 @@ def test_parse_chunk_args_auto_flag() -> None:
 
 
 def test_parse_chunk_args_combined() -> None:
-    paragraph_count, char_len, auto = _parse_chunk_args(
-        f'{FILE_CHUNK_CMD} paragraph=2 len=300 -y'
-    )
+    paragraph_count, char_len, auto = _parse_chunk_args(f'{FILE_CHUNK_CMD} paragraph=2 len=300 -y')
     assert paragraph_count == 2
     assert char_len == 300
     assert auto is True

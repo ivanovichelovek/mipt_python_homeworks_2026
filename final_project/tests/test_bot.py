@@ -97,9 +97,7 @@ def test_validate_negative_limit_chars(make_config: Callable[..., AppConfig]) ->
         _validate(config)
 
 
-def test_load_config_no_config_raises(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
+def test_load_config_no_config_raises(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.chdir(tmp_path)
     for key in ('API_KEY', 'API_HOST', 'LIMIT_MESSAGE', 'LIMIT_CHARS', 'TEMPERATURE', 'MODEL'):
         monkeypatch.delenv(key, raising=False)
