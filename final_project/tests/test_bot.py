@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from final_project.bot import (
+from final_project.config import (
     ERR_LIMIT_CHARS,
     ERR_LIMIT_MESSAGE,
     ERR_NO_API_HOST,
@@ -11,11 +11,11 @@ from final_project.bot import (
     ERR_NO_CONFIG,
     ERR_TEMPERATURE,
     AppConfig,
-    MessageHistory,
     _build,
     _validate,
     load_config,
 )
+from final_project.history import MessageHistory
 
 BASE_ENV = {'API_KEY': 'test-key', 'API_HOST': 'http://localhost:11434/v1'}
 

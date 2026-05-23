@@ -1,11 +1,11 @@
 from collections.abc import Callable
 
-from final_project.bot import AppConfig
-from final_project.main import (
+from final_project.commands import (
     FILE_CHUNK_CMD,
     _build_chunk_messages,
     _parse_chunk_args,
 )
+from final_project.config import AppConfig
 
 
 def test_parse_chunk_args_defaults() -> None:

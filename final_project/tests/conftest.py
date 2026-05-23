@@ -3,7 +3,7 @@ from typing import Any
 
 import pytest
 
-from final_project.bot import AppConfig
+from final_project.config import AppConfig
 
 
 @pytest.fixture
