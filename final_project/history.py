@@ -11,9 +11,6 @@ MessageDict = dict[str, str]
 class MessageHistory:
     _messages: list[MessageDict] = field(default_factory=list, init=False)
 
-    def _total_chars(self) -> int:
-        return sum(len(m['content']) for m in self._messages)
-
     def prepare_and_add(
         self,
         content: str,
@@ -46,8 +43,12 @@ class MessageHistory:
     def clear(self) -> None:
         self._messages.clear()
 
-    def get_messages(self) -> list[MessageDict]:
+    @property
+    def messages(self) -> list[MessageDict]:
         return list(self._messages)
 
     def message_count(self) -> int:
         return len(self._messages)
+
+    def _total_chars(self) -> int:
+        return sum(len(m['content']) for m in self._messages)

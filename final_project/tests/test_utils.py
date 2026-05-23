@@ -46,9 +46,7 @@ def test_expand_file_too_large(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
     f = tmp_path / 'big.txt'
     f.write_text('data')
 
-    import final_project.utils as utils_mod
-
-    monkeypatch.setattr(utils_mod, 'MAX_FILE_SIZE_BYTES', 1)
+    monkeypatch.setattr('final_project.utils.MAX_FILE_SIZE_BYTES', 1)
     result, warnings = expand_file_references(f'@::{f}::')
     assert '@::' in result
     assert len(warnings) == 1

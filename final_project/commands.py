@@ -1,12 +1,12 @@
 from pathlib import Path
 
-from .client import LLMClient
-from .config import AppConfig
-from .history import ROLE_SYSTEM, ROLE_USER, MessageDict, MessageHistory
-from .utils import expand_file_references, split_by_length, split_by_paragraphs
+from final_project.client import LLMClient
+from final_project.config import AppConfig
+from final_project.history import ROLE_SYSTEM, ROLE_USER, MessageDict, MessageHistory
+from final_project.utils import expand_file_references, split_by_length, split_by_paragraphs
 
 PROMPT = '>>> '
-QUIT_CMD = '\\q'
+QUIT_CMD = r'\q'
 RESET_CMD = '/reset'
 FILE_CHUNK_CMD = '/file_chunk'
 
@@ -15,25 +15,33 @@ def _build_messages(history: MessageHistory, config: AppConfig) -> list[MessageD
     messages: list[MessageDict] = []
     if config.system_prompt:
         messages.append({'role': ROLE_SYSTEM, 'content': config.system_prompt})
-    messages.extend(history.get_messages())
+    messages.extend(history.messages)
     return messages
 
 
-def _send_and_collect(client: LLMClient, history: MessageHistory, config: AppConfig) -> None:
-    messages = _build_messages(history, config)
+def _collect_response(client: LLMClient, messages: list[MessageDict]) -> str | None:
     full_response = ''
     try:
         for token in client.send_stream(messages):
             print(token, end='', flush=True)
             full_response += token
-        print()
-        history.add_assistant(full_response)
     except KeyboardInterrupt:
-        history.pop_last()
         print('\nЗапрос отменён.')
+        return None
     except Exception as e:
-        history.pop_last()
         print(f'Ошибка LLM: {e}')
+        return None
+    print()
+    return full_response
+
+
+def _send_and_collect(client: LLMClient, history: MessageHistory, config: AppConfig) -> None:
+    messages = _build_messages(history, config)
+    full_response = _collect_response(client, messages)
+    if full_response is None:
+        history.pop_last()
+        return
+    history.add_assistant(full_response)
 
 
 def handle_reset(history: MessageHistory) -> None:
@@ -65,6 +73,37 @@ def _build_chunk_messages(chunk: str, user_prompt: str, config: AppConfig) -> li
     return messages
 
 
+def _read_file(path: Path) -> str | None:
+    try:
+        return path.read_text(encoding='utf-8')
+    except OSError as e:
+        print(f'Не удалось прочитать файл: {e}')
+        return None
+
+
+def _stream_chunk(client: LLMClient, messages: list[MessageDict]) -> bool:
+    try:
+        for token in client.send_stream(messages):
+            print(token, end='', flush=True)
+    except KeyboardInterrupt:
+        print('\nОбработка фрагмента отменена.')
+        return False
+    print()
+    return True
+
+
+def _process_chunks(
+    chunks: list[str], user_prompt: str, client: LLMClient, config: AppConfig, auto: bool
+) -> None:
+    for i, chunk in enumerate(chunks):
+        messages = _build_chunk_messages(chunk, user_prompt, config)
+        if not _stream_chunk(client, messages):
+            return
+        is_last = i == len(chunks) - 1
+        if not is_last and not auto:
+            input(f'{PROMPT}')
+
+
 def handle_file_chunk(cmd: str, client: LLMClient, config: AppConfig) -> None:
     file_path_str = input(f'{PROMPT}Укажите путь к файлу\n{PROMPT}').strip()
     path = Path(file_path_str)
@@ -73,40 +112,24 @@ def handle_file_chunk(cmd: str, client: LLMClient, config: AppConfig) -> None:
         print(f'Файл не найден: {path}')
         return
 
-    try:
-        text = path.read_text(encoding='utf-8')
-    except OSError as e:
-        print(f'Не удалось прочитать файл: {e}')
+    text = _read_file(path)
+    if text is None:
         return
 
     user_prompt = input(f'{PROMPT}Принято. Что делать с каждым фрагментом?\n{PROMPT}').strip()
-
     paragraph_count, char_len, auto = _parse_chunk_args(cmd)
-    if char_len is not None:
-        chunks = split_by_length(text, char_len)
-    else:
+
+    if char_len is None:
         chunks = split_by_paragraphs(text, paragraph_count)
+    else:
+        chunks = split_by_length(text, char_len)
 
     if not chunks:
         print('Обработка файла завершена.')
         return
 
     print(f'{PROMPT}Принято. Обработка:')
-
-    for i, chunk in enumerate(chunks):
-        messages = _build_chunk_messages(chunk, user_prompt, config)
-        try:
-            for token in client.send_stream(messages):
-                print(token, end='', flush=True)
-            print()
-        except KeyboardInterrupt:
-            print('\nОбработка фрагмента отменена.')
-            return
-
-        is_last = i == len(chunks) - 1
-        if not is_last and not auto:
-            input(f'{PROMPT}')
-
+    _process_chunks(chunks, user_prompt, client, config, auto)
     print(f'{PROMPT}Обработка файла завершена.')
 
 

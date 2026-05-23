@@ -46,9 +46,27 @@ def _load_yaml(path: Path) -> dict[str, object]:
     return result if isinstance(result, dict) else {}
 
 
+def _to_str(value: object, default: str) -> str:
+    if value is None:
+        return default
+    return str(value)
+
+
+def _to_int(value: object) -> int | None:
+    if value is None:
+        return None
+    return int(str(value))
+
+
+def _to_float(value: object, default: float) -> float:
+    if value is None:
+        return default
+    return float(str(value))
+
+
 def _validate(config: AppConfig) -> None:
     errors: list[str] = []
-    if not (0.0 <= config.temperature <= 1.0):
+    if config.temperature < 0 or config.temperature > 1:
         errors.append(ERR_TEMPERATURE)
     if config.limit_message is not None and config.limit_message <= 0:
         errors.append(ERR_LIMIT_MESSAGE)
@@ -67,21 +85,20 @@ def _build(env: Mapping[str, str], yaml_cfg: Mapping[str, object]) -> AppConfig:
     if not api_host:
         raise ValueError(ERR_NO_API_HOST)
 
+    raw_model = env.get(ENV_MODEL) or yaml_cfg.get('model')
     raw_limit_msg = env.get(ENV_LIMIT_MESSAGE) or yaml_cfg.get('limit_message')
     raw_limit_chars = env.get(ENV_LIMIT_CHARS) or yaml_cfg.get('limit_chars')
     raw_temperature = env.get(ENV_TEMPERATURE) or yaml_cfg.get('temperature')
-    raw_model = env.get(ENV_MODEL) or yaml_cfg.get('model')
+    system_prompt = yaml_cfg.get('system_prompt')
 
     config = AppConfig(
         api_key=str(api_key),
         api_host=str(api_host),
-        model=str(raw_model) if raw_model is not None else DEFAULT_MODEL,
-        limit_message=int(str(raw_limit_msg)) if raw_limit_msg is not None else None,
-        limit_chars=int(str(raw_limit_chars)) if raw_limit_chars is not None else None,
-        temperature=float(str(raw_temperature))
-        if raw_temperature is not None
-        else DEFAULT_TEMPERATURE,
-        system_prompt=str(yaml_cfg['system_prompt']) if 'system_prompt' in yaml_cfg else None,
+        model=_to_str(raw_model, DEFAULT_MODEL),
+        limit_message=_to_int(raw_limit_msg),
+        limit_chars=_to_int(raw_limit_chars),
+        temperature=_to_float(raw_temperature, DEFAULT_TEMPERATURE),
+        system_prompt=None if system_prompt is None else str(system_prompt),
     )
     _validate(config)
     return config

@@ -4,8 +4,8 @@ from typing import cast
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageParam
 
-from .config import AppConfig
-from .history import MessageDict
+from final_project.config import AppConfig
+from final_project.history import MessageDict
 
 
 class LLMClient:

@@ -110,15 +110,15 @@ def test_prepare_and_add_basic() -> None:
     result = history.prepare_and_add('hello', None, None)
     assert result == 'hello'
     assert history.message_count() == 1
-    assert history.get_messages()[0]['content'] == 'hello'
-    assert history.get_messages()[0]['role'] == 'user'
+    assert history.messages[0]['content'] == 'hello'
+    assert history.messages[0]['role'] == 'user'
 
 
 def test_add_assistant() -> None:
     history = MessageHistory()
     history.prepare_and_add('hi', None, None)
     history.add_assistant('hello back')
-    messages = history.get_messages()
+    messages = history.messages
     assert len(messages) == 2
     assert messages[1]['role'] == 'assistant'
     assert messages[1]['content'] == 'hello back'
@@ -130,7 +130,7 @@ def test_limit_message_trims_oldest() -> None:
         history.prepare_and_add(f'msg{i}', None, None)
         history.add_assistant(f'resp{i}')
     history.prepare_and_add('new', 4, None)
-    contents = [m['content'] for m in history.get_messages()]
+    contents = [m['content'] for m in history.messages]
     assert 'msg0' not in contents
     assert 'new' in contents
     assert history.message_count() == 4
@@ -143,11 +143,11 @@ def test_limit_chars_trims_oldest() -> None:
     history.prepare_and_add('ccc', None, None)
     history.add_assistant('ddd')
     history.prepare_and_add('eee', None, 10)
-    total = sum(len(m['content']) for m in history.get_messages())
+    total = sum(len(m['content']) for m in history.messages)
     assert total <= 10
 
 
-def test_limit_chars_truncates_message_if_exceeds_alone() -> None:
+def test_limit_chars_truncates_long_message() -> None:
     history = MessageHistory()
     long_msg = 'x' * 20
     result = history.prepare_and_add(long_msg, None, 5)
@@ -169,7 +169,7 @@ def test_pop_last() -> None:
     history.prepare_and_add('remove', None, None)
     history.pop_last()
     assert history.message_count() == 1
-    assert history.get_messages()[0]['content'] == 'keep'
+    assert history.messages[0]['content'] == 'keep'
 
 
 def test_clear() -> None:
@@ -179,9 +179,9 @@ def test_clear() -> None:
     assert history.message_count() == 0
 
 
-def test_get_messages_returns_copy() -> None:
+def test_messages_returns_copy() -> None:
     history = MessageHistory()
     history.prepare_and_add('a', None, None)
-    messages = history.get_messages()
+    messages = history.messages
     messages.clear()
     assert history.message_count() == 1
