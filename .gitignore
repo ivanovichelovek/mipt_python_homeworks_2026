@@ -212,3 +212,6 @@ __marimo__/
 
 # MacOS
 .DS_Store
+
+# Final project secrets
+final_project/config.yaml

@@ -15,3 +15,6 @@ per-file-ignores =
     part3_types_conditions_loops_functions/hw3.py: WPS407
     part3_types_conditions_loops_functions/tests/test_cost_handler.py: WPS218, WPS221
     */tests/*: S101, WPS204, N999
+    final_project/utils.py: WPS100, WPS221, E203
+    final_project/history.py: WPS226
+    final_project/tests/*: WPS226, WPS235, WPS407, WPS118, WPS301
